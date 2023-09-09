@@ -16,4 +16,8 @@ export default class GitExec {
 	static restore(file: string): string {
 		return execSync(`git restore --staged ${file}`).toString();
 	}
+
+	static commit(message: string) {
+		execSync(`git commit -m "${message}"`);
+	}
 }

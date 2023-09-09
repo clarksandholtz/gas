@@ -58,3 +58,8 @@ export function unstageFile(file: string): FileStatus | null {
 		return null;
 	}
 }
+
+export function commitChanges(message: string) {
+	const escapedMessage = message.replace(/(?<!\\)"/g, '\\"');
+	GitExec.commit(escapedMessage);
+}

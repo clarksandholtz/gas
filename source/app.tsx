@@ -5,12 +5,18 @@ import {
 	stageFile,
 	getAllChanges,
 	unstageFile,
+	commitChanges,
 } from './util/git-helpers.js';
 import {Box, useApp, useInput} from 'ink';
 import Legend from './components/Legend.js';
+import CommitScreen from './components/CommitScreen.js';
+import {AppMode} from './types/AppMode.js';
+import {clearOutput} from './util/terminal-util.js';
 
 export default function App() {
 	const [changes, setChanges] = useState<FileStatus[]>([]);
+	const [commitMessage, setCommitMessage] = useState('');
+	const [mode, setMode] = useState<AppMode>('change_list');
 	const {exit} = useApp();
 	useEffect(() => {
 		setChanges(getAllChanges());
@@ -40,23 +46,49 @@ export default function App() {
 		[setChanges],
 	);
 
+	const onCommit = useCallback(() => {
+		commitChanges(commitMessage);
+		exit();
+	}, [commitMessage]);
+
 	useInput((input, _key) => {
+		if (mode === 'commit') {
+			return;
+		}
+
 		if (input === 'q') {
 			exit();
 		}
 		if (input === 'r') {
 			setChanges(getAllChanges());
 		}
+		if (input === 'c') {
+			clearOutput();
+			setMode('commit');
+		}
 	});
 
 	return (
 		<Box flexDirection="column">
-			<ChangeList
-				changes={changes}
-				onStageFile={onStageFile}
-				onUnstageFile={onUnstageFile}
-			/>
-			<Legend />
+			{mode == 'change_list' && (
+				<ChangeList
+					changes={changes}
+					onStageFile={onStageFile}
+					onUnstageFile={onUnstageFile}
+				/>
+			)}
+			{mode == 'commit' && (
+				<CommitScreen
+					message={commitMessage}
+					updateMessage={setCommitMessage}
+					onCommit={onCommit}
+					onCancel={() => {
+						clearOutput();
+						setMode('change_list');
+					}}
+				/>
+			)}
+			<Legend mode={mode} />
 		</Box>
 	);
 }

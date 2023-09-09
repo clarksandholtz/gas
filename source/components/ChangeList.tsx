@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Text, Box, useInput, Newline} from 'ink';
+import {Text, Box, useInput} from 'ink';
 import {FileStatus} from '../util/git-helpers.js';
 import StatusLine from './StatusLine.js';
 import groupChanges from '../hooks/groupChanges.js';
@@ -66,7 +66,7 @@ export default function ChangeList({
 			) : (
 				<Text>No staged changes</Text>
 			)}
-			<Newline />
+			<Box height={1} />
 			<Text bold>Unstaged changes:</Text>
 			{unstaged.length > 0 ? (
 				unstaged.map((status, index) => {
