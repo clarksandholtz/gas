@@ -4,7 +4,7 @@ import {Text, Box} from 'ink';
 import {GitStatus} from '../git-helpers.js';
 
 const colorMap: Record<GitStatus, string> = {
-	'??': 'cyan',
+	'?': 'cyan',
 	A: 'green',
 	M: 'yellow',
 	D: 'red',
@@ -23,7 +23,8 @@ export default function StatusLine({status, file, selected}: Props) {
 	return (
 		<Box>
 			<Text
-				color={selected ? colorMap[status] : 'black'}
+				bold
+				color={selected ? 'black' : colorMap[status]}
 				backgroundColor={selected ? colorMap[status] : undefined}
 			>
 				{status}

@@ -1,23 +1,30 @@
-import {execSync} from 'child_process';
+import GitExec from './GitExec.js';
 
-export type GitStatus = '??' | 'A' | 'M' | 'D' | 'R' | 'C' | 'U';
+export type GitStatus = '?' | 'A' | 'M' | 'D' | 'R' | 'C' | 'U';
 
 export type FileStatus = {
 	file: string;
-	status: GitStatus;
+	indexStatus: GitStatus | null;
+	treeStatus: GitStatus | null;
 };
 
 function parseGitStatus(line: string): FileStatus {
-	const status = line.substring(0, 2) as GitStatus;
+	const indexChar = line.substring(0, 1);
+	const indexStatus = indexChar === ' ' ? null : (indexChar as GitStatus);
+	const treeChar = line.substring(1, 2);
+	const treeStatus = treeChar === ' ' ? null : (treeChar as GitStatus);
 	const file = line.substring(3).trim();
 
-	return {status, file};
+	return {indexStatus, treeStatus, file};
 }
 
-export function getAllStatus(): FileStatus[] {
+export function getAllChanges(): FileStatus[] {
 	try {
-		const stdout = execSync('git status --porcelain').toString();
-		return stdout.trim().split('\n').map(parseGitStatus);
+		const stdout = GitExec.status();
+		return stdout
+			.split('\n')
+			.filter(line => line.trim().length > 0)
+			.map(parseGitStatus);
 	} catch (e) {
 		return [];
 	}
@@ -25,22 +32,29 @@ export function getAllStatus(): FileStatus[] {
 
 export function getStatusForFile(file: string): FileStatus | null {
 	try {
-		const stdout = execSync(`git status ${file} --porcelain`).toString();
+		const stdout = GitExec.fileStatus(file);
 		return parseGitStatus(stdout);
 	} catch (e) {
 		return null;
 	}
 }
 
-function toggleFileStatus(file: string) {
-	const{status} = getStatusForFile(file)
-	if (status == '')
+export function stageFile(file: string): FileStatus | null {
+	try {
+		GitExec.add(file);
+		const stdout = GitExec.fileStatus(file);
+		return parseGitStatus(stdout);
+	} catch (e) {
+		return null;
+	}
 }
 
-function addFile(file: string) {
-		execSync(`git add ${file}`);
-}
-
-function unstageFile(file: string) {
-	execSync(`git restore --staged ${file}`);
+export function unstageFile(file: string): FileStatus | null {
+	try {
+		GitExec.restore(file);
+		const stdout = GitExec.fileStatus(file);
+		return parseGitStatus(stdout);
+	} catch (e) {
+		return null;
+	}
 }
