@@ -2,5 +2,15 @@
 import React from 'react';
 import {render} from 'ink';
 import App from './app.js';
+import {
+	activateAlternateScreen,
+	deactivateAlternateScreen,
+} from './util/terminal-util.js';
 
-render(<App />);
+activateAlternateScreen();
+
+const {waitUntilExit} = render(<App />);
+
+await waitUntilExit();
+
+deactivateAlternateScreen();

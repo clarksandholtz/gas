@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react';
-import {FileStatus} from '../git-helpers.js';
+import {FileStatus} from '../util/git-helpers.js';
 
 export type GroupedChanges = {
 	staged: FileStatus[];

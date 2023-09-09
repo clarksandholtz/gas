@@ -1,6 +1,6 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Text, Box, useInput, Newline} from 'ink';
-import {FileStatus} from '../git-helpers.js';
+import {FileStatus} from '../util/git-helpers.js';
 import StatusLine from './StatusLine.js';
 import groupChanges from '../hooks/groupChanges.js';
 
@@ -18,6 +18,12 @@ export default function ChangeList({
 	const {staged, unstaged, totalCount} = groupChanges(changes);
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const unstagedStartIndex = staged.length;
+
+	useEffect(() => {
+		if (selectedIndex >= totalCount) {
+			setSelectedIndex(Math.max(totalCount - 1, 0));
+		}
+	}, [totalCount, setSelectedIndex]);
 
 	useInput((input, key) => {
 		if (key.upArrow) {

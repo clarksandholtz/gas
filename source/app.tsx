@@ -5,8 +5,9 @@ import {
 	stageFile,
 	getAllChanges,
 	unstageFile,
-} from './git-helpers.js';
-import {useApp, useInput} from 'ink';
+} from './util/git-helpers.js';
+import {Box, useApp, useInput} from 'ink';
+import Legend from './components/Legend.js';
 
 export default function App() {
 	const [changes, setChanges] = useState<FileStatus[]>([]);
@@ -43,13 +44,19 @@ export default function App() {
 		if (input === 'q') {
 			exit();
 		}
+		if (input === 'r') {
+			setChanges(getAllChanges());
+		}
 	});
 
 	return (
-		<ChangeList
-			changes={changes}
-			onStageFile={onStageFile}
-			onUnstageFile={onUnstageFile}
-		/>
+		<Box flexDirection="column">
+			<ChangeList
+				changes={changes}
+				onStageFile={onStageFile}
+				onUnstageFile={onUnstageFile}
+			/>
+			<Legend />
+		</Box>
 	);
 }
